@@ -5,7 +5,7 @@ export default class App {
     this.router = new Router(config.routes)
     this.components = config.components || []
 
-    global.App = this
+    window.App = this
   }
 
   get ctrl() {
@@ -18,6 +18,20 @@ export default class App {
     document.addEventListener(event, () => {
       this.router.dispatch()
       this.components.forEach(component => new(component))
+
+      this.ctrl.findAll('[onclick]').forEach(element => {
+        const onclick = element.onclick
+        element.onclick = null
+
+        element.addEventListener('click', (event) => {
+          event.preventDefault()
+
+          this.currentElement = element
+          this.currentEvent   = event
+
+          onclick.call()
+        })
+      })
     })
   }
 }
